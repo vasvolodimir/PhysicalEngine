@@ -25,7 +25,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $$PWD/include
 
 # Custom defines
-DEFINES += CONFIG_CENTROID_MODEL
+#DEFINES += CONFIG_CENTROID_MODEL
+DEFINES += CONFIG_WORLD_MODEL
 
 SOURCES += src/main.cpp\
         src/window.cpp \
@@ -41,4 +42,10 @@ contains(DEFINES, CONFIG_CENTROID_MODEL)
 {
     SOURCES += models/centroid/centroid.cpp
     HEADERS += include/centroid.h
+}
+
+contains(DEFINES, CONFIG_WORLD_MODEL)
+{
+    SOURCES += models/world/world.cpp
+    HEADERS += include/world.h
 }

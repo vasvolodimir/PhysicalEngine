@@ -102,6 +102,8 @@ void Engine::initModels()
 {
 #ifdef CONFIG_CENTROID_MODEL
     m_model = new Centroid(this);
+#elif defined (CONFIG_WORLD_MODEL)
+    m_model = new World(this);
 #endif
 }
 

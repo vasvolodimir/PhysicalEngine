@@ -17,6 +17,10 @@
 #include "centroid.h"
 #endif
 
+#ifdef CONFIG_WORLD_MODEL
+#include "world.h"
+#endif
+
 class Window;
 
 using namespace Physics;
