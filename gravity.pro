@@ -22,12 +22,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 # You can also select to disable deprecated APIs only up to a certain version of Qt.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
+INCLUDEPATH += $$PWD/include
 
-SOURCES += main.cpp\
-        window.cpp \
-    engine.cpp \
-    physics.cpp
+# Custom defines
+DEFINES += CONFIG_CENTROID_MODEL
 
-HEADERS  += window.h \
-    engine.h \
-    physics.h
+SOURCES += src/main.cpp\
+        src/window.cpp \
+    src/engine.cpp \
+    src/physics.cpp
+
+HEADERS  += include/window.h \
+    include/engine.h \
+    include/physics.h
+
+contains(DEFINES, CONFIG_CENTROID_MODEL)
+{
+    SOURCES += models/centroid/centroid.cpp
+    HEADERS += include/centroid.h
+}

@@ -9,15 +9,15 @@
 
 namespace Physics
 {
-    struct Ellipse
+    struct Item
     {
-        QGraphicsEllipseItem *item;
+        QGraphicsItem *item;
         double x, y;
         double vx = 0, vy = 0;
         double m;
         bool moveable;
 
-        Ellipse(QGraphicsEllipseItem *item, double m, bool moveable)
+        Item(QGraphicsItem *item, double m, bool moveable)
             : item(item),
               x(item->x()),
               y(item->y()),

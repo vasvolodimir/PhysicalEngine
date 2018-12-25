@@ -28,7 +28,7 @@ public:
     ~Window();
 
     QSize sizeHint() const;
-    void addItem(QGraphicsEllipseItem *item);
+    void addItem(QGraphicsItem *item);
     QGraphicsScene *getScene() const;
 
 protected:

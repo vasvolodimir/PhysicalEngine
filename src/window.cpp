@@ -48,7 +48,7 @@ QGraphicsScene *Window::createScene(QWidget *parent, QGraphicsScene **scene)
 }
 
 
-void Window::addItem(QGraphicsEllipseItem *item)
+void Window::addItem(QGraphicsItem *item)
 {
     m_scene->addItem(item);
 }
@@ -60,5 +60,5 @@ QGraphicsScene *Window::getScene() const
 
 void Window::mousePressEvent(QMouseEvent *event)
 {
-    Engine::instance().handle(event);
+    Engine::instance().handleMouseEvent(event);
 }
