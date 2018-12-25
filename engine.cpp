@@ -76,7 +76,7 @@ void Engine::handle(QMouseEvent *event)
 
     for(int i=1; i<m_ellipses.size(); i++)
     {
-        m_ellipses[i]->move = true;
+        m_ellipses[i]->moveable = true;
         m_ellipses[i]->vx = 0;
         m_ellipses[i]->vy = 0;
     }
@@ -127,13 +127,14 @@ void Engine::step()
 
     for(int i=0; i<m_ellipses.size(); i++)
         {
-            if (i == center || !m_ellipses[i]->move)
+            if (i == center || !m_ellipses[i]->moveable)
                 continue;
 
             dx = m_ellipses[center]->item->x() - m_ellipses[i]->item->x();
             dy = m_ellipses[center]->item->y() - m_ellipses[i]->item->y();
             r = calcDistance(m_ellipses[center]->item->pos(), m_ellipses[i]->item->pos());
 
+            /* XXX: This case added manually to avoid colliding bugs */
             if (r > 50 || !m_ellipses[i]->vx || !m_ellipses[i]->vy)
             {
                 a = G * m_ellipses[center]->m / pow(r, 2);
@@ -143,19 +144,16 @@ void Engine::step()
                 m_ellipses[i]->vx += ax * m_dt;
                 m_ellipses[i]->vy += ay * m_dt;
             }
-        }
 
-    for(int i=0; i<m_ellipses.size(); i++)
-    {
-        if (m_ellipses[i]->move)
-        {
-            m_ellipses[i]->item->setX(m_ellipses[i]->item->x() +
-                                      m_ellipses[i]->vx * m_dt);
-            m_ellipses[i]->item->setY(m_ellipses[i]->item->y() +
-                                      m_ellipses[i]->vy * m_dt);
-        }
+            if (m_ellipses[i]->moveable)
+            {
+                m_ellipses[i]->item->setX(m_ellipses[i]->item->x() +
+                                          m_ellipses[i]->vx * m_dt);
+                m_ellipses[i]->item->setY(m_ellipses[i]->item->y() +
+                                          m_ellipses[i]->vy * m_dt);
+            }
 
-        if (m_ellipses[i]->item->collidesWithItem(m_ellipses[center]->item))
-            m_ellipses[i]->move = false;
-    }
+            if (m_ellipses[i]->item->collidesWithItem(m_ellipses[center]->item))
+                m_ellipses[i]->moveable = false;
+        }
 }

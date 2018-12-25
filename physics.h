@@ -15,14 +15,14 @@ namespace Physics
         double x, y;
         double vx = 0, vy = 0;
         double m;
-        bool move;
+        bool moveable;
 
-        Ellipse(QGraphicsEllipseItem *item, double m, bool move)
+        Ellipse(QGraphicsEllipseItem *item, double m, bool moveable)
             : item(item),
               x(item->x()),
               y(item->y()),
               m(m),
-              move(move)
+              moveable(moveable)
         { }
     };
 
