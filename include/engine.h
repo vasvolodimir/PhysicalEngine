@@ -2,12 +2,16 @@
 #define ENGINE_H
 
 #include <QObject>
-#include <QGraphicsItem>
 #include <QTimer>
 #include <ctime>
 
+#include <QGraphicsItem>
+#include <QGraphicsRectItem>
+#include <QGraphicsLineItem>
+
 #include "window.h"
 #include "physics.h"
+#include "log.h"
 
 #ifdef CONFIG_CENTROID_MODEL
 #include "centroid.h"
@@ -26,22 +30,34 @@ class Engine : public QObject
     Engine &operator=(QObject&);
 
 public:
+        enum
+        {
+            Ellipse,
+            Rectangle,
+            Line
+        };
+
+public:
     void initModels();
     static Engine &instance(QObject *parent = 0);
     ~Engine();
 
-    void createCenterItem(QSize size, double mass, QBrush brush);
+    void createCenterItem(int type, QSize size, double mass, QBrush brush);
     /* Generate not intersected items */
-    void generateItems(unsigned count, QSize size, double mass, QBrush brush);
+    void generateItems(int type, unsigned count, QSize size, double mass,
+                       QBrush brush);
     void handleMouseEvent(QMouseEvent *event);
     QTimer *createTimer(QObject *parent, QObject *handler,
                         const char *slot, int interval,
                         QTimer **timer);
+    QGraphicsItem *createItem(int type, QRectF rect, QBrush brush);
 
 private:
     QPointF getPos(QSize size) const;
     bool intersected(QRectF rect) const;
     QGraphicsEllipseItem *createEllipse(QRectF rect, QBrush brush);
+    QGraphicsRectItem *createRect(QRectF rect, QBrush brush);
+    QGraphicsLineItem *createLine(QRect rect, QBrush brush);
 
 public slots:
         void gravityStep();
@@ -49,7 +65,6 @@ public slots:
 private:
         size_t m_width, m_height;
         QVector<Item*> m_items;
-        QGraphicsItem *m_center;
         int m_dt, m_eps;
         QObject *m_model;
 };

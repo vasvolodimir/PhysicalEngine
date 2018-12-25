@@ -5,7 +5,6 @@ Engine::Engine(QObject *parent)
       m_width(0),
       m_height(0),
       m_items(0),
-      m_center(nullptr),
       m_dt(20),
       m_eps(0.1),
       m_model(nullptr)
@@ -27,13 +26,22 @@ Engine::~Engine()
         delete m_model;
 }
 
-void Engine::createCenterItem(QSize size, double mass, QBrush brush)
+void Engine::createCenterItem(int type, QSize size, double mass, QBrush brush)
 {
-    m_center = createEllipse(QRectF(0, 0, size.width(), size.height()), brush);
-    m_center->setPos((m_width - size.width()) / 2, (m_height - size.height()) / 2);
+    QGraphicsItem *item;
 
-    m_items.push_back(new Item(m_center, mass, false)); // XXX: Change mass
-    Window::instance().addItem(m_center);
+    item = createItem(type, QRectF(0, 0, size.width(), size.height()), brush);
+
+    if (!item)
+    {
+        LOG_D("Can't create item!");
+        return;
+    }
+
+    item->setPos((m_width - size.width()) / 2, (m_height - size.height()) / 2);
+
+    m_items.push_back(new Item(item, mass, false));
+    Window::instance().addItem(item);
 }
 
 QGraphicsEllipseItem *Engine::createEllipse(QRectF rect, QBrush brush)
@@ -43,6 +51,20 @@ QGraphicsEllipseItem *Engine::createEllipse(QRectF rect, QBrush brush)
     item->setPen(Qt::NoPen);
 
     return item;
+}
+
+QGraphicsRectItem *Engine::createRect(QRectF rect, QBrush brush)
+{
+    QGraphicsRectItem *item = new QGraphicsRectItem(rect);
+    item->setBrush(brush);
+    item->setPen(Qt::NoPen);
+
+    return item;
+}
+
+QGraphicsLineItem *Engine::createLine(QRect rect, QBrush brush)
+{
+//    QGraphicsLineItem *item = new QGraphicsLineItem;
 }
 
 QTimer *Engine::createTimer(QObject *parent, QObject *handler,
@@ -61,6 +83,21 @@ QTimer *Engine::createTimer(QObject *parent, QObject *handler,
     return *timer;
 }
 
+QGraphicsItem *Engine::createItem(int type, QRectF rect, QBrush brush)
+{
+    switch(type)
+    {
+        case Ellipse:
+        return createEllipse(rect, brush);
+
+        case Rectangle:
+        return createRect(rect, brush);
+
+        default:
+        return nullptr;
+    }
+}
+
 void Engine::initModels()
 {
 #ifdef CONFIG_CENTROID_MODEL
@@ -68,15 +105,22 @@ void Engine::initModels()
 #endif
 }
 
-void Engine::generateItems(unsigned count, QSize size, double mass,
+void Engine::generateItems(int type, unsigned count, QSize size, double mass,
                            QBrush brush)
 {
     QGraphicsItem *item;
 
     for(unsigned i=0; i<count; i++)
     {
-        item = createEllipse(QRectF(0, 0, size.width(),
+        item = createItem(type, QRectF(0, 0, size.width(),
                                     size.height()), brush);
+
+        if (!item)
+        {
+            LOG_D("Can't create item!");
+            return;
+        }
+
         item->setPos(getPos(size));
         m_items.push_back(new Item(item, mass, true));
         Window::instance().addItem(item);
@@ -108,18 +152,18 @@ QPointF Engine::getPos(QSize size) const
 bool Engine::intersected(QRectF rect) const
 {
     QRectF ellipse;
-    QGraphicsEllipseItem *item;
+    QGraphicsRectItem *item;
 
     if (m_items.isEmpty())
         return false;
 
     for(int i=0; i<m_items.size(); i++)
     {
-        item = dynamic_cast<QGraphicsEllipseItem*> (m_items[i]->item);
+        item = static_cast<QGraphicsRectItem*> (m_items[i]->item);
 
         if (!item)
         {
-            Q_ASSERT("Cast error!");
+            LOG_D("Item casting error!");
             return false;
         }
 

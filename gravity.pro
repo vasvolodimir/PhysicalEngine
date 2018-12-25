@@ -34,7 +34,8 @@ SOURCES += src/main.cpp\
 
 HEADERS  += include/window.h \
     include/engine.h \
-    include/physics.h
+    include/physics.h \
+    include/log.h
 
 contains(DEFINES, CONFIG_CENTROID_MODEL)
 {
