@@ -7,6 +7,7 @@ Engine::Engine(QObject *parent)
       m_items(0),
       m_dt(20),
       m_eps(0.1),
+      m_ground(nullptr),
       m_model(nullptr)
 {
     m_width = Window::instance().getScene()->width();
@@ -26,7 +27,8 @@ Engine::~Engine()
         delete m_model;
 }
 
-void Engine::createCenterItem(int type, QSize size, double mass, QBrush brush)
+void Engine::createCenterItem(int type, QSize size, double mass, QBrush brush,
+                              bool moveable)
 {
     QGraphicsItem *item;
 
@@ -40,7 +42,7 @@ void Engine::createCenterItem(int type, QSize size, double mass, QBrush brush)
 
     item->setPos((m_width - size.width()) / 2, (m_height - size.height()) / 2);
 
-    m_items.push_back(new Item(item, mass, false));
+    m_items.push_back(new Item(item, mass, moveable));
     Window::instance().addItem(item);
 }
 
@@ -96,6 +98,26 @@ QGraphicsItem *Engine::createItem(int type, QRectF rect, QBrush brush)
         default:
         return nullptr;
     }
+}
+
+QGraphicsItem *Engine::createGround()
+{
+    int x = 0, y = m_height - 20;
+
+    m_ground = createRect(QRect(x, y, m_width, m_height), Qt::black);
+
+    if (m_ground)
+    {
+        m_items.push_back(new Item(m_ground, 200.0, false));
+        Window::instance().addItem(m_ground);
+    }
+
+    return m_ground;
+}
+
+int Engine::altitude(QGraphicsItem *item) const
+{
+    return qAbs(item->y() - (m_ground ? m_ground->y() - 20 : 0));
 }
 
 void Engine::initModels()
@@ -181,7 +203,7 @@ bool Engine::intersected(QRectF rect) const
     return false;
 }
 
-void Engine::gravityStep()
+void Engine::globalGravityStep()
 {
     double dx, dy, r, a, ax, ay;
     int center = 0;
@@ -191,8 +213,13 @@ void Engine::gravityStep()
             if (i == center || !m_items[i]->moveable)
                 continue;
 
+#ifdef CONFIG_CENTROID_MODEL
             dx = m_items[center]->item->x() - m_items[i]->item->x();
             dy = m_items[center]->item->y() - m_items[i]->item->y();
+#else
+            dx = 0;
+            dy = qAbs(m_items[center]->item->y() - m_items[i]->item->y());
+#endif
             r = calcDistance(m_items[center]->item->pos(), m_items[i]->item->pos());
 
             /* XXX: This case added manually to avoid colliding bugs */
@@ -216,5 +243,34 @@ void Engine::gravityStep()
 
             if (m_items[i]->item->collidesWithItem(m_items[center]->item))
                 m_items[i]->moveable = false;
+    }
+}
+
+void Engine::verticalMove()
+{
+    static double time = m_dt;
+    double stop, sy;
+    int center = 0;
+
+    for(int i=0; i<m_items.size(); i++)
+    {
+        if (i == center)
+            continue;
+
+        stop = sqrt(2 * altitude(m_items[i]->item) / NEWTON_G);
+
+        if (time == stop || m_items[i]->item->collidesWithItem(
+           m_items[center]->item))
+        {
+            m_items[i]->moveable = false;
         }
+
+        if (m_items[i]->moveable)
+        {
+            sy = NEWTON_G * time * time * 0.001 / 2.0;
+            qDebug() << sy;
+            m_items[i]->item->setY(m_items[i]->item->y() + sy);
+            time += m_dt;
+        }
+    }
 }

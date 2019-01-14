@@ -46,7 +46,7 @@ public:
     static Engine &instance(QObject *parent = 0);
     ~Engine();
 
-    void createCenterItem(int type, QSize size, double mass, QBrush brush);
+    void createCenterItem(int type, QSize size, double mass, QBrush brush, bool moveable);
     /* Generate not intersected items */
     void generateItems(int type, unsigned count, QSize size, double mass,
                        QBrush brush);
@@ -55,6 +55,8 @@ public:
                         const char *slot, int interval,
                         QTimer **timer);
     QGraphicsItem *createItem(int type, QRectF rect, QBrush brush);
+    QGraphicsItem *createGround();
+    int altitude(QGraphicsItem *item) const;
 
 private:
     QPointF getPos(QSize size) const;
@@ -64,12 +66,14 @@ private:
     QGraphicsLineItem *createLine(QRect rect, QBrush brush);
 
 public slots:
-        void gravityStep();
+        void globalGravityStep();
+        void verticalMove();
 
 private:
         size_t m_width, m_height;
         QVector<Item*> m_items;
         int m_dt, m_eps;
+        QGraphicsItem *m_ground;
         QObject *m_model;
 };
 

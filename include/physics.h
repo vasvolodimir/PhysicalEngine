@@ -6,6 +6,7 @@
 #include <cmath>
 
 #define G 0.067
+#define NEWTON_G 9.8
 
 namespace Physics
 {

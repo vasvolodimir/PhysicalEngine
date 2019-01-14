@@ -10,7 +10,7 @@ Window::Window(QWidget *parent)
     this->resize(size);
     this->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     this->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    this->setBackgroundBrush(QColor(125, 125, 125));
+    this->setBackgroundBrush(Qt::white);
 
     createScene(this, &m_scene);
 
